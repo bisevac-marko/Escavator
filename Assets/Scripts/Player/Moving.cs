@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class Moving : State
 {
-    private Vector2 moveInput;
+
     private Vector2Int direction;
+
     public Moving(Digger digger) : base(digger) { }
 
     public override void Loop()
@@ -14,34 +15,22 @@ public class Moving : State
         if (Input.GetKey(KeyCode.W))
         {
             direction.y = 1;
-            if (GridManager.CanMove(Digger.posX, Digger.posY, direction))
-            {
-                digger.SetState(new MoveInDirection(digger, direction));
-            }
+            MoveOrDrillInDir(direction);
         }
         else if (Input.GetKey(KeyCode.A))
         {
             direction.x = -1;
-            if (GridManager.CanMove(Digger.posX, Digger.posY, direction))
-            {
-                digger.SetState(new MoveInDirection(digger, direction));
-            }
+            MoveOrDrillInDir(direction);
         }
         else if (Input.GetKey(KeyCode.S))
         {
             direction.y = -1;
-            if (GridManager.CanMove(Digger.posX, Digger.posY, direction))
-            {
-                digger.SetState(new MoveInDirection(digger, direction));
-            }
+            MoveOrDrillInDir(direction);
         }
         else if (Input.GetKey(KeyCode.D))
         {
             direction.x = 1;
-            if (GridManager.CanMove(Digger.posX, Digger.posY, direction))
-            {
-                digger.SetState(new MoveInDirection(digger, direction));
-            }
+            MoveOrDrillInDir(direction);
         }
         direction = Vector2Int.zero;
     }
@@ -49,5 +38,16 @@ public class Moving : State
     public override void OnStateEnter()
     {
         direction = Vector2Int.zero;
+    }
+    private void MoveOrDrillInDir(Vector2Int dir)
+    {
+        if (GameManager.CanMove(Digger.posX, Digger.posY, dir))
+        {
+            digger.SetState(new MoveInDirection(digger, dir));
+        }
+        else
+        {
+            digger.SetState(new Drilling(digger, dir));
+        }
     }
 }

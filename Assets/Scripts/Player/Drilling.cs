@@ -1,23 +1,22 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class MoveInDirection : State
+public class Drilling : State
 {
-    private Vector2 dir;
-    private Vector3 startingPos;
+	private Vector2 dir;
     private Vector3 nextNodePos;
+    private Vector3 startingPos;
 
-    public MoveInDirection(Digger digger, Vector2Int dir) : base(digger) 
-    {
-        this.dir = dir;
-    }
+	public Drilling(Digger digger, Vector2Int direction) : base(digger) 
+	{
+		dir = direction;
+	}
+
 
     public override void Loop()
     {
         if (!ReachedNode())
         {
-            digger.transform.Translate(dir * 1.5f * Time.deltaTime);
+            digger.transform.Translate(dir * .5f * Time.deltaTime);
         }
         else
         {
@@ -35,5 +34,12 @@ public class MoveInDirection : State
     {
         startingPos = digger.transform.position;
         nextNodePos = startingPos + new Vector3(dir.x, dir.y, 0);
+    }
+
+    public override void OnStateExit()
+    {
+        int nodePosX = Mathf.RoundToInt(nextNodePos.x);
+        int nodePosY = Mathf.RoundToInt(nextNodePos.y);
+        GameManager.SetIsDrilled(nodePosX, nodePosY);
     }
 }

@@ -7,12 +7,12 @@ public class Digger : MonoBehaviour
     public static int posX;
     public static int posY;
 
-    private GridManager gridManager;
+    private GameManager gridManager;
     private State currentState;
 
     private void Start()
     {
-        gridManager = FindObjectOfType<GridManager>();
+        gridManager = FindObjectOfType<GameManager>();
         currentState = new Idle(this);
     }
 
