@@ -10,7 +10,7 @@ public class Idle : State
     {
         if (Input.GetKeyDown(KeyCode.G))
         {
-            digger.SetState(new Moving(digger));
+            digger.SetState(new MovingStateHandler(digger));
         }
     }
 }

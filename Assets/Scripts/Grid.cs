@@ -6,33 +6,50 @@ public class Grid
     private int width;
     private int height;
     private Node[,] nodes;
-    private int startingY = 10000;
-    public Grid(int width, int height, int depthY)
+    private Vector2Int origin;
+    private int currentYIndex;
+    public Grid(int width, int height, Vector2Int origin)
     {
+        this.origin = origin;
         this.width = width;
         this.height = height;
+        currentYIndex = height - 1;
 
         nodes = new Node[width, height];
 
-        for (int x = 0; x < width; x++)
+        InitializeNodes(20);
+        InitializeNodes(50);
+    }
+    public void InitializeNodes(int rowsCount)
+    {
+        //For every row from top till rowCount
+        for (int y = currentYIndex; y >= (currentYIndex - rowsCount); y--)
         {
-            for (int y = 0; y < height; y++)
+            for (int x = 0; x < width; x++)
             {
-                nodes[x, y] = new Node(x, y, true);
+                //Debug.LogError(x + "," + y);
+                nodes[x, y] = new Node(x + origin.x, y + origin.y, true);
+
+                Debug.DrawLine(new Vector3(x - .5f, y - .5f), new Vector3(x + .5f, y - .5f), Color.white, Mathf.Infinity);
+                Debug.DrawLine(new Vector3(x - .5f, y - .5f), new Vector3(x - .5f, y + .5f), Color.white, Mathf.Infinity);
+                GameManager.CreateWorldText("(" + x + ", " + y + ")", new Vector3(x, y));
             }
         }
-        GameManager.DrawGrid(nodes);
+        currentYIndex -= rowsCount;
     }
-    public void SetNodeDrilled(int posX, int posY)
+    public void SetNodeDrilled(int nodeX, int nodeY)
     {
-        Debug.Log(posX + ", " + posY);
-        nodes[posX, posY].isOccupied = false;
+        //Debug.Log(nodeX + ", " + nodeY);
+        nodes[nodeX - origin.x, nodeY - origin.y].isOccupied = false;
     }
-    public bool NodeOccupied(int posX, int posY)
+    public bool IsNodeOccupied(int posX, int posY)
     {
-        if(posX < width && posX >= 0 && posY < height && posY >= 0)
+        int indexPosX = posX - origin.x;
+        int indexPosY = posY - origin.y;
+
+        if(indexPosX < width && indexPosX >= 0 && indexPosY < height && indexPosY >= 0)
         {
-            return nodes[posX, posY].isOccupied;
+            return nodes[indexPosX, indexPosY].isOccupied;
         }
         return false;
     }

@@ -21,7 +21,7 @@ public class Drilling : State
         else
         {
             digger.transform.position = nextNodePos;
-            digger.SetState(new Moving(digger));
+            digger.SetState(new MovingStateHandler(digger));
         }
     }
 

@@ -4,50 +4,37 @@ using UnityEngine;
 
 public class Moving : State
 {
+    private Vector2 dir;
+    private Vector3 startingPos;
+    private Vector3 nextNodePos;
+    private float moveSpeed = 1.5f;
 
-    private Vector2Int direction;
-
-    public Moving(Digger digger) : base(digger) { }
+    public Moving(Digger digger, Vector2Int dir) : base(digger) 
+    {
+        this.dir = dir;
+    }
 
     public override void Loop()
     {
+        if (!ReachedNode())
+        {
+            digger.transform.Translate(dir * moveSpeed * Time.deltaTime);
+        }
+        else
+        {
+            digger.transform.position = nextNodePos;
+            digger.SetState(new MovingStateHandler(digger));
+        }
+    }
 
-        if (Input.GetKey(KeyCode.W))
-        {
-            direction.y = 1;
-            MoveOrDrillInDir(direction);
-        }
-        else if (Input.GetKey(KeyCode.A))
-        {
-            direction.x = -1;
-            MoveOrDrillInDir(direction);
-        }
-        else if (Input.GetKey(KeyCode.S))
-        {
-            direction.y = -1;
-            MoveOrDrillInDir(direction);
-        }
-        else if (Input.GetKey(KeyCode.D))
-        {
-            direction.x = 1;
-            MoveOrDrillInDir(direction);
-        }
-        direction = Vector2Int.zero;
+    private bool ReachedNode()
+    {
+        return Vector3.Distance(digger.transform.position, nextNodePos) < 0.05f;
     }
 
     public override void OnStateEnter()
     {
-        direction = Vector2Int.zero;
-    }
-    private void MoveOrDrillInDir(Vector2Int dir)
-    {
-        if (GameManager.CanMove(Digger.posX, Digger.posY, dir))
-        {
-            digger.SetState(new MoveInDirection(digger, dir));
-        }
-        else
-        {
-            digger.SetState(new Drilling(digger, dir));
-        }
+        startingPos = digger.transform.position;
+        nextNodePos = startingPos + new Vector3(dir.x, dir.y, 0);
     }
 }

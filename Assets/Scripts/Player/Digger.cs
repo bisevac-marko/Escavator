@@ -7,12 +7,11 @@ public class Digger : MonoBehaviour
     public static int posX;
     public static int posY;
 
-    private GameManager gridManager;
     private State currentState;
 
     private void Start()
     {
-        gridManager = FindObjectOfType<GameManager>();
+        transform.position = new Vector3(1, GameManager.startingHeight - 10, 0);
         currentState = new Idle(this);
     }
 
@@ -21,6 +20,7 @@ public class Digger : MonoBehaviour
         posX = Mathf.RoundToInt(transform.position.x);
         posY = Mathf.RoundToInt(transform.position.y);
         currentState.Loop();
+
     }
     public void SetState(State state)
     {
@@ -36,4 +36,6 @@ public class Digger : MonoBehaviour
             currentState.OnStateEnter();
         }
     }
+
+
 }
