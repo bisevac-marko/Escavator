@@ -2,9 +2,10 @@
 
 public class Drilling : State
 {
-	private Vector2 dir;
-    private Vector3 nextNodePos;
-    private Vector3 startingPos;
+	private Vector2Int dir;
+    private Vector3Int nextNodePos;
+    private Collider2D col;
+    private float drillSpeed = 3f;
 
 	public Drilling(Digger digger, Vector2Int direction) : base(digger) 
 	{
@@ -16,30 +17,32 @@ public class Drilling : State
     {
         if (!ReachedNode())
         {
-            digger.transform.Translate(dir * .5f * Time.deltaTime);
+            digger.transform.position = Vector3.MoveTowards(digger.transform.position, nextNodePos, drillSpeed * Time.deltaTime);
         }
         else
         {
             digger.transform.position = nextNodePos;
-            digger.SetState(new MovingStateHandler(digger));
+            digger.SetState(new Moving(digger));
         }
     }
 
     private bool ReachedNode()
     {
-        return Vector3.Distance(digger.transform.position, nextNodePos) < 0.05f;
+        return Vector3.Distance(digger.transform.position, nextNodePos)  < .01f;
     }
 
     public override void OnStateEnter()
     {
-        startingPos = digger.transform.position;
-        nextNodePos = startingPos + new Vector3(dir.x, dir.y, 0);
+        //Set next node pos
+        nextNodePos = new Vector3Int(Digger.X + dir.x, Digger.Y + dir.y, 0);
+        //Destory next node
+        GridManager.Instance.DestroyNode(nextNodePos.x, nextNodePos.y);
+        col = digger.GetComponent<Collider2D>();
+        col.enabled = false;
     }
 
     public override void OnStateExit()
     {
-        int nodePosX = Mathf.RoundToInt(nextNodePos.x);
-        int nodePosY = Mathf.RoundToInt(nextNodePos.y);
-        GameManager.SetIsDrilled(nodePosX, nodePosY);
+        col.enabled = true;
     }
 }

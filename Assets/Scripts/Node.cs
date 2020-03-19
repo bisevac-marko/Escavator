@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Node
 {
-    public bool isOccupied;
     public int xPos;
     public int yPos;
 
@@ -12,6 +11,5 @@ public class Node
     {
         this.xPos = xPos;
         this.yPos = yPos;
-        this.isOccupied = isOccupied;
     }
 }

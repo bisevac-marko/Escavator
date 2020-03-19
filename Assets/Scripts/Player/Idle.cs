@@ -4,13 +4,21 @@ using UnityEngine;
 
 public class Idle : State
 {
-    public Idle (Digger digger) : base(digger) { }
+
+    public Idle (Digger digger) : base(digger) 
+    {
+
+    }
 
     public override void Loop()
     {
-        if (Input.GetKeyDown(KeyCode.G))
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.W))
         {
-            digger.SetState(new MovingStateHandler(digger));
+            digger.SetState(new Moving(digger));
         }
+    }
+    public override void OnStateEnter()
+    {
+
     }
 }

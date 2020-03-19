@@ -4,37 +4,73 @@ using UnityEngine;
 
 public class Moving : State
 {
-    private Vector2 dir;
-    private Vector3 startingPos;
-    private Vector3 nextNodePos;
-    private float moveSpeed = 1.5f;
 
-    public Moving(Digger digger, Vector2Int dir) : base(digger) 
+    private Vector2Int dir;
+    private Rigidbody2D rb;
+    private float moveSpeed = 3f;
+
+    public Moving(Digger digger) : base(digger) 
     {
-        this.dir = dir;
+
     }
 
     public override void Loop()
     {
-        if (!ReachedNode())
+        
+    }
+
+    public override void FixedLoop()
+    {
+        if (Input.GetKey(KeyCode.W))
         {
-            digger.transform.Translate(dir * moveSpeed * Time.deltaTime);
+            dir.y = 1;
+            MoveInDirection(dir);
+        }
+        else if (Input.GetKey(KeyCode.A))
+        {
+            dir.x = -1;
+            if (GridManager.Instance.NodeExists(Digger.X + dir.x, Digger.Y) && digger.IsGrounded())
+            {
+                digger.SetState(new Drilling(digger, dir));
+            }
+            MoveInDirection(dir);
+        }
+        else if (Input.GetKey(KeyCode.S))
+        {
+            dir.y = -1;
+            if (GridManager.Instance.NodeExists(Digger.X, Digger.Y + dir.y) && digger.IsGrounded())
+            {
+                digger.SetState(new Drilling(digger, dir));
+            }
+            MoveInDirection(dir);
+        }
+        else if (Input.GetKey(KeyCode.D))
+        {
+            dir.x = 1;
+            if (GridManager.Instance.NodeExists(Digger.X + dir.x, Digger.Y) && digger.IsGrounded())
+            {
+                digger.SetState(new Drilling(digger, dir));
+            }
+            MoveInDirection(dir);
         }
         else
         {
-            digger.transform.position = nextNodePos;
-            digger.SetState(new MovingStateHandler(digger));
+            digger.SetState(new Idle(digger));
         }
+        dir = Vector2Int.zero;
     }
-
-    private bool ReachedNode()
+    private void MoveInDirection(Vector2Int direction)
     {
-        return Vector3.Distance(digger.transform.position, nextNodePos) < 0.05f;
+        rb.MovePosition(rb.position + (Vector2)direction * moveSpeed * Time.fixedDeltaTime);
     }
-
     public override void OnStateEnter()
     {
-        startingPos = digger.transform.position;
-        nextNodePos = startingPos + new Vector3(dir.x, dir.y, 0);
+        rb = digger.GetComponent<Rigidbody2D>();
+        dir = Vector2Int.zero;
+    }
+
+    public override void OnStateExit()
+    {
+
     }
 }

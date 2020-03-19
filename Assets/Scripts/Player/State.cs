@@ -12,7 +12,7 @@ public abstract class State
     }
     public abstract void Loop();
 
-
+    public virtual void FixedLoop() { }
     public virtual void OnStateEnter() { }
     public virtual void OnStateExit() { }
 
