@@ -5,9 +5,8 @@ using UnityEngine;
 public class Moving : State
 {
 
-    private Vector2Int dir;
-    private Rigidbody2D rb;
-    private float moveSpeed = 3f;
+    private Vector2Int moveInput;
+    private float moveSpeed = 5f;
 
     public Moving(Digger digger) : base(digger) 
     {
@@ -18,59 +17,39 @@ public class Moving : State
     {
         
     }
-
     public override void FixedLoop()
     {
-        if (Input.GetKey(KeyCode.W))
+
+        moveInput.x = Mathf.RoundToInt(Input.GetAxisRaw("Horizontal"));
+        moveInput.y = Mathf.RoundToInt(Input.GetAxisRaw("Vertical"));
+
+        if (GridManager.Instance.CanDrill(moveInput))
         {
-            dir.y = 1;
-            MoveInDirection(dir);
-        }
-        else if (Input.GetKey(KeyCode.A))
-        {
-            dir.x = -1;
-            if (GridManager.Instance.NodeExists(Digger.X + dir.x, Digger.Y) && digger.IsGrounded())
+            if (moveInput.x == 1)
             {
-                digger.SetState(new Drilling(digger, dir));
+                digger.SetState(new Drilling(digger, Vector2Int.right));
             }
-            MoveInDirection(dir);
-        }
-        else if (Input.GetKey(KeyCode.S))
-        {
-            dir.y = -1;
-            if (GridManager.Instance.NodeExists(Digger.X, Digger.Y + dir.y) && digger.IsGrounded())
+            else if (moveInput.x == -1)
             {
-                digger.SetState(new Drilling(digger, dir));
+                digger.SetState(new Drilling(digger, Vector2Int.left));
             }
-            MoveInDirection(dir);
-        }
-        else if (Input.GetKey(KeyCode.D))
-        {
-            dir.x = 1;
-            if (GridManager.Instance.NodeExists(Digger.X + dir.x, Digger.Y) && digger.IsGrounded())
+            else if (moveInput.y == -1)
             {
-                digger.SetState(new Drilling(digger, dir));
+                digger.SetState(new Drilling(digger, Vector2Int.down));
             }
-            MoveInDirection(dir);
+        }
+        else if (moveInput.y == 1)
+        {
+            digger.SetState(new Flying(digger));
         }
         else
         {
-            digger.SetState(new Idle(digger));
+            Vector2 move = new Vector2(moveInput.x, Mathf.Clamp(moveInput.y, 0, 1));
+            Digger.rb.MovePosition(Digger.rb.position + move * moveSpeed * Time.fixedDeltaTime);
         }
-        dir = Vector2Int.zero;
-    }
-    private void MoveInDirection(Vector2Int direction)
-    {
-        rb.MovePosition(rb.position + (Vector2)direction * moveSpeed * Time.fixedDeltaTime);
-    }
-    public override void OnStateEnter()
-    {
-        rb = digger.GetComponent<Rigidbody2D>();
-        dir = Vector2Int.zero;
-    }
+        
 
-    public override void OnStateExit()
-    {
 
     }
+
 }

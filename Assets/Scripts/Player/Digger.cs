@@ -4,25 +4,25 @@ using UnityEngine;
 
 public class Digger : MonoBehaviour
 {
-    public static int X { get; private set; }
-    public static int Y { get; private set; }
+    public static int x { get; private set; }
+    public static int y { get; private set; }
+    public static Rigidbody2D rb { get; private set; }
+    public static CircleCollider2D colider { get; private set; }
 
     private State currentState;
-    private LayerMask nodeLayerMask;
-    private Rigidbody2D rb;
 
     private void Start()
     {
-        transform.position = new Vector3(-1, 1000, 0);
-        nodeLayerMask = LayerMask.GetMask("Node");
+        colider = GetComponent<CircleCollider2D>();
         rb = GetComponent<Rigidbody2D>();
+        transform.position = new Vector3(10, 200, 0);
         currentState = new Idle(this);
     }
 
     private void Update()
     {
-        X = Mathf.RoundToInt(transform.position.x);
-        Y = Mathf.RoundToInt(transform.position.y);
+        x = Mathf.RoundToInt(transform.position.x);
+        y = Mathf.RoundToInt(transform.position.y);
         currentState.Loop();
     }
     private void FixedUpdate()
@@ -42,11 +42,6 @@ public class Digger : MonoBehaviour
         {
             currentState.OnStateEnter();
         }
-    }
-    public bool IsGrounded()
-    {
-        bool isGrounded = Physics2D.OverlapBox(new Vector2(X, Y - .55f), new Vector2(.9f, .1f), 0, nodeLayerMask);
-        return isGrounded;
     }
 
 }

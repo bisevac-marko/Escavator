@@ -4,7 +4,6 @@ public class Drilling : State
 {
 	private Vector2Int dir;
     private Vector3Int nextNodePos;
-    private Collider2D col;
     private float drillSpeed = 3f;
 
 	public Drilling(Digger digger, Vector2Int direction) : base(digger) 
@@ -21,7 +20,6 @@ public class Drilling : State
         }
         else
         {
-            digger.transform.position = nextNodePos;
             digger.SetState(new Moving(digger));
         }
     }
@@ -33,16 +31,28 @@ public class Drilling : State
 
     public override void OnStateEnter()
     {
+        
+        if(dir.y == -1)
+        {
+            Digger.colider.enabled = false;
+        }
+
+
+        Digger.rb.gravityScale = 0;
+        Physics2D.gravity = Vector2.zero;
         //Set next node pos
-        nextNodePos = new Vector3Int(Digger.X + dir.x, Digger.Y + dir.y, 0);
+        nextNodePos = new Vector3Int(Digger.x + dir.x, Digger.y + dir.y, 0);
         //Destory next node
+        Debug.Log(dir.x + " " + dir.y);
         GridManager.Instance.DestroyNode(nextNodePos.x, nextNodePos.y);
-        col = digger.GetComponent<Collider2D>();
-        col.enabled = false;
     }
 
     public override void OnStateExit()
     {
-        col.enabled = true;
+        Physics2D.gravity = new Vector2(0, -10);
+        Digger.rb.gravityScale = 20;
+        digger.transform.position = nextNodePos;
+
+        Digger.colider.enabled = true;
     }
 }

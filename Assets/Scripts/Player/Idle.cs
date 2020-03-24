@@ -17,8 +17,4 @@ public class Idle : State
             digger.SetState(new Moving(digger));
         }
     }
-    public override void OnStateEnter()
-    {
-
-    }
 }
