@@ -2,12 +2,12 @@
 
 public class CameraBehaviour : MonoBehaviour
 {
-	private Digger digger;
+	private Player digger;
 	private int boundLeft;
 	private int boundRight;
 	private void Start()
 	{
-		digger = FindObjectOfType<Digger>();
+		digger = FindObjectOfType<Player>();
 		boundLeft = 10;
 		boundRight = 40;
 		transform.position = digger.transform.position;

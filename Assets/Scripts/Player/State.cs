@@ -1,19 +1,15 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
+﻿
 public abstract class State
 {
-    protected Digger digger;
+    protected Player player;
 
-    public State(Digger digger)
+    public State(Player player)
     {
-        this.digger = digger;
+        this.player = player;
     }
-    public abstract void Loop();
+    public virtual void Loop() { }
 
     public virtual void FixedLoop() { }
     public virtual void OnStateEnter() { }
     public virtual void OnStateExit() { }
-
 }
