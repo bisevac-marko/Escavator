@@ -14,12 +14,13 @@ public class Drilling : State
     {
         if (!ReachedNode())
         {
-            player.transform.position = Vector3.MoveTowards(player.transform.position, nextNodePos, player.GetDrillingSpeed() * Time.deltaTime);
+            player.transform.position = Vector3.MoveTowards(player.transform.position, nextNodePos, player.drillingSpeed * Time.deltaTime);
         }
         else
         {
             player.SetState(new Idle(player));
         }
+        player.DrainFuel(35f);
     }
 
     private bool ReachedNode()
@@ -36,13 +37,15 @@ public class Drilling : State
 
         //Set next node pos
         nextNodePos = new Vector3Int(player.x + dir.x, player.y + dir.y, 0);
-
         //Destory next node
-        GridManager.Instance.DestroyNode(nextNodePos.x, nextNodePos.y);
+        GridManager.Instance.DrillNode(nextNodePos.x, nextNodePos.y);
+        Physics2D.gravity = Vector2.zero;
+        player.rb.velocity = Vector2.zero;
     }
 
     public override void OnStateExit()
     {
+        Physics2D.gravity = new Vector2(0, -9.8f);
         player.transform.position = nextNodePos;
         player.colider.enabled = true;
     }

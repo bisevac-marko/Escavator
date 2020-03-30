@@ -1,75 +1,74 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class GridManager : MonoBehaviour
 {
     private int gridWidth = 20;
-    private int gridHeight = 200;
+    private int gridHeight = 100;
+    private const float floatOffset = .03f;
 
     private GameObject worldTextParent;
     private GameObject nodeParent;
-    private GameObject[,] worldNodes;
+    private Grid grid;
+    private List<GameObject> planetNodeAssets;
     public static GridManager Instance { get; private set; }
     private Player player;
-    public void GenerateGrid(NodeGenerator nodeGenerator)
+    public delegate void OnNodeDrilled(int score);
+    public event OnNodeDrilled onNodeDrilled;
+
+    public void GenerateGrid(List<GameObject> nodeAssets)
     {
         Instance = this;
         worldTextParent = new GameObject("World Text");
-        nodeParent = new GameObject("Nodes");
+        nodeParent = new GameObject("World Nodes");
         player = FindObjectOfType<Player>();
-        worldNodes = new GameObject[gridWidth, gridHeight];
-
-
-        for (int x = 0; x < gridWidth; x++)
-        {
-            for (int y = 0; y < gridHeight; y++)
-            {
-                worldNodes[x, y] = Instantiate(nodeGenerator.GetRandom(y), new Vector3(x, y), Quaternion.identity, nodeParent.transform);
-                worldNodes[x, y].name = "World_Node " + x + ", " + y;
-                CreateWorldText(x + ", " + y, x, y);
-            }
-        }
+        planetNodeAssets = nodeAssets;
+        grid = new Grid(gridWidth, gridHeight);
     }
 
-    public void DestroyNode(int posX, int posY)
+    public GameObject CreateWorldNode(int nodeType, int x, int y)
     {
-        Destroy(worldNodes[posX, posY]);
-        worldNodes[posX, posY] = null;
+        GameObject obj = Instantiate(planetNodeAssets[nodeType], new Vector3(x, y), Quaternion.identity, nodeParent.transform);
+        CreateWorldText(x + ", " + y, x, y);
+        return obj;
+    }
+    public void DrillNode(int nodeX, int nodeY)
+    {
+        Node node = grid.GetNode(nodeX, nodeY);
+        // if not a dirt node
+        if (node.type >= 1)
+        {
+            // add node to backpack
+            player.AddToBackpack(node);
+        }
+        //Update Score
+        onNodeDrilled?.Invoke(node.type);
+        //Destroy Node
+        Destroy(grid.GetNode(nodeX, nodeY).nodeObj);
+        grid.DestroyNode(nodeX, nodeY);
     }
     public bool CanDrill(Vector2Int dir)
     {
-        return player.IsGrounded() && NodeExists(dir) && TouchingNode(dir);
-    }
-    private bool NodeExists(Vector2Int dir)
-    {
-        int nodeX = player.x + dir.x;
-        int nodeY = player.y + dir.y;
-        if (nodeX < gridWidth && nodeX >= 0 && nodeY < gridHeight && nodeY >= 0)
-        {
-            if (worldNodes[nodeX, nodeY] != null)
-            {
-                return true;
-            }
-        }
-        return false;
+        return player.IsGrounded() && grid.NodeExists(player.x + dir.x, player.y + dir.y) && TouchingNode(dir);
     }
     private bool TouchingNode(Vector2Int dir)
     {
         if (dir.x == 1)
         {
-            return player.transform.position.x >= player.x;
+            return player.transform.position.x >= player.x - floatOffset;
         }
         else if (dir.x == -1)
         {
-            return player.transform.position.x <= player.x;
+            return player.transform.position.x <= player.x + floatOffset;
         }
         
         if (dir.y == -1)
         {
-            return player.transform.position.y <= player.y;
+            return player.transform.position.y <= player.y + floatOffset;
         }
         else if (dir.y == 1)
         {
-            return player.transform.position.y >= player.y;
+            return player.transform.position.y >= player.y - floatOffset;
         }
         return false;
     }
@@ -86,4 +85,9 @@ public class GridManager : MonoBehaviour
         textMesh.fontSize = 14;
         textMesh.color = Color.white;
     }
+    public int GetHeight()
+    {
+        return this.gridHeight;
+    }
+
 }
